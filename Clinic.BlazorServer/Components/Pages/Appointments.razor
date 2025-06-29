@@ -1,0 +1,35 @@
+@page "/appointments"
+@inject HttpClient Http
+
+<MudTable Items="appointments" Hover="true">
+    <HeaderContent>
+        <MudTh>Doctor</MudTh>
+        <MudTh>Patient</MudTh>
+        <MudTh>Time</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Doctor?.FirstName @context.Doctor?.LastName</MudTd>
+        <MudTd>@context.Patient?.FirstName @context.Patient?.LastName</MudTd>
+        <MudTd>@context.AppointmentTime</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<Appointment> appointments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await Http.GetFromJsonAsync<List<Appointment>>("https://localhost:5001/appointments");
+        if (data != null)
+            appointments = data;
+    }
+
+    public class Appointment
+    {
+        public Doctor? Doctor { get; set; }
+        public Patient? Patient { get; set; }
+        public DateTime AppointmentTime { get; set; }
+    }
+    public class Doctor { public string? FirstName { get; set; } public string? LastName { get; set; } }
+    public class Patient { public string? FirstName { get; set; } public string? LastName { get; set; } }
+}
