@@ -1,0 +1,36 @@
+@page "/appointment/{id:int}"
+@inject HttpClient Http
+
+@if (appointment == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h6">Doctor: @appointment.Doctor?.FirstName @appointment.Doctor?.LastName</MudText>
+            <MudText Typo="Typo.body1">Patient: @appointment.Patient?.FirstName @appointment.Patient?.LastName</MudText>
+            <MudText Typo="Typo.body1">Time: @appointment.AppointmentTime</MudText>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    private Appointment? appointment;
+
+    protected override async Task OnInitializedAsync()
+    {
+        appointment = await Http.GetFromJsonAsync<Appointment>($"https://localhost:5001/appointments/{id}");
+    }
+
+    public class Appointment
+    {
+        public Doctor? Doctor { get; set; }
+        public Patient? Patient { get; set; }
+        public DateTime AppointmentTime { get; set; }
+    }
+    public class Doctor { public string? FirstName { get; set; } public string? LastName { get; set; } }
+    public class Patient { public string? FirstName { get; set; } public string? LastName { get; set; } }
+}
