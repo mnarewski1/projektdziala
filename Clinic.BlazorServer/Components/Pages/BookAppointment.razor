@@ -25,7 +25,7 @@
             }
         </MudSelect>
 
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" Type="Submit">Book</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" ButtonType="ButtonType.Submit">Book</MudButton>
     </EditForm>
 </MudPaper>
 
@@ -44,7 +44,7 @@
         var appointment = new Appointment
         {
             DoctorId = model.DoctorId,
-            AppointmentTime = model.Date.Date + model.Time,
+            AppointmentTime = model.Date!.Value.Date + model.Time,
             Patient = new Patient { FirstName = model.FirstName, LastName = model.LastName }
         };
 
@@ -60,7 +60,7 @@
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public int DoctorId { get; set; }
-        public DateTime Date { get; set; } = DateTime.Today;
+        public DateTime? Date { get; set; } = DateTime.Today;
         public TimeSpan Time { get; set; }
     }
 }
