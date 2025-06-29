@@ -1,0 +1,66 @@
+@page "/book"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<MudPaper Class="p-4">
+    <MudText Typo="Typo.h5">Book Appointment</MudText>
+
+    <EditForm Model="model" OnValidSubmit="HandleValidSubmit">
+        <MudTextField @bind-Value="model.FirstName" Label="First name" Required="true" Class="mb-2" />
+        <MudTextField @bind-Value="model.LastName" Label="Last name" Required="true" Class="mb-2" />
+
+        <MudSelect T="int" Label="Doctor" @bind-Value="model.DoctorId" Required="true" Class="mb-2">
+            @foreach (var doc in doctors)
+            {
+                <MudSelectItem Value="doc.Id">@doc.FirstName @doc.LastName</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudDatePicker @bind-Date="model.Date" Label="Date" Required="true" Class="mb-2" />
+
+        <MudSelect T="TimeSpan" Label="Time" @bind-Value="model.Time" Required="true" Class="mb-2">
+            @foreach (var hour in hours)
+            {
+                <MudSelectItem Value="hour">@hour.ToString(@"hh\:mm")</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Type="Submit">Book</MudButton>
+    </EditForm>
+</MudPaper>
+
+@code {
+    private List<Doctor> doctors = new();
+    private AppointmentForm model = new();
+    private List<TimeSpan> hours = Enumerable.Range(8, 8).Select(h => new TimeSpan(h,0,0)).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        doctors = await Http.GetFromJsonAsync<List<Doctor>>("https://localhost:7228/doctors") ?? new();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var appointment = new Appointment
+        {
+            DoctorId = model.DoctorId,
+            AppointmentTime = model.Date.Date + model.Time,
+            Patient = new Patient { FirstName = model.FirstName, LastName = model.LastName }
+        };
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7228/appointments", appointment);
+        if (response.IsSuccessStatusCode)
+        {
+            NavManager.NavigateTo("appointments", true);
+        }
+    }
+
+    private class AppointmentForm
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public int DoctorId { get; set; }
+        public DateTime Date { get; set; } = DateTime.Today;
+        public TimeSpan Time { get; set; }
+    }
+}
